@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ledger — job application tracker screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFF1EA;
+    --paper-line:#DEDFD2;
+    --card:#FBFBF7;
+    --ink:#20281F;
+    --ink-soft:#5B6459;
+    --ink-faint:#8B9184;
+    --border:#D8D8CA;
+    --rust:#C24A2E;
+    --rust-bg:#F5E1DA;
+    --amber:#B5780E;
+    --amber-bg:#F4E6C9;
+    --forest:#2E6F4E;
+    --forest-bg:#DEEBE1;
+    --slate:#4C5C70;
+    --slate-bg:#DFE4EA;
+    --gray-bg:#E7E7DE;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#1B1D18;
+    font-family:'Inter',sans-serif;
+    padding:48px 32px 100px;
+  }
+  .intro{
+    max-width:1200px;
+    margin:0 auto 44px;
+    color:#F0F0E6;
+  }
+  .intro .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:#B9BCA9;
+    margin:0 0 10px;
+  }
+  .intro h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:34px;
+    margin:0 0 8px;
+    letter-spacing:-.01em;
+  }
+  .intro p{
+    font-size:15px;
+    line-height:1.6;
+    color:#C7C9BB;
+    max-width:640px;
+    margin:0;
+  }
+  .board{
+    max-width:1440px;
+    margin:0 auto;
+    display:flex;
+    gap:40px;
+    flex-wrap:wrap;
+    align-items:flex-start;
+  }
+  .screen-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:320px;
+  }
+  .screen-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:#B9BCA9;
+    margin-bottom:14px;
+    text-align:center;
+    letter-spacing:.02em;
+  }
+  .screen-label b{color:#F0F0E6;font-weight:500;}
+  .phone{
+    width:320px;
+    height:693px;
+    background:var(--paper);
+    border-radius:34px;
+    border:8px solid #14150F;
+    box-shadow:0 30px 60px rgba(0,0,0,.45);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .notch{
+    position:absolute;
+    top:0;left:50%;
+    transform:translateX(-50%);
+    width:110px;height:22px;
+    background:#14150F;
+    border-radius:0 0 14px 14px;
+    z-index:5;
+  }
+  .statusbar{
+    height:40px;
+    flex:none;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    padding:0 20px 6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .screen{
+    flex:1;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+  .ruled{
+    background-image:repeating-linear-gradient(to bottom, transparent, transparent 27px, var(--paper-line) 27px, var(--paper-line) 28px);
+  }
+  .topbar{
+    padding:6px 18px 14px;
+    flex:none;
+  }
+  .topbar .kicker{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin:0 0 2px;
+  }
+  .topbar h2{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:23px;
+    margin:0;
+    color:var(--ink);
+    letter-spacing:-.01em;
+  }
+  .scroll{
+    flex:1;
+    overflow-y:auto;
+    padding:4px 14px 14px;
+  }
+  .chiprow{
+    display:flex;
+    gap:6px;
+    padding:0 18px 10px;
+    flex:none;
+    overflow-x:auto;
+  }
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    padding:5px 10px;
+    border-radius:20px;
+    border:1px solid var(--border);
+    color:var(--ink-soft);
+    white-space:nowrap;
+    background:var(--card);
+  }
+  .chip.active{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+  .section-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin:14px 8px 8px;
+  }
+  .section-label.rust{color:var(--rust);}
+  .section-label.amber{color:var(--amber);}
+
+  .app-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px 13px;
+    margin-bottom:9px;
+    position:relative;
+    padding-left:16px;
+  }
+  .app-card::before{
+    content:'';
+    position:absolute;
+    left:0;top:10px;bottom:10px;
+    width:4px;
+    border-radius:2px;
+    background:var(--stage-color, var(--ink-faint));
+  }
+  .app-card.attn{border-color:#E3B7A9;}
+  .app-card .row1{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+  }
+  .app-card .company{
+    font-family:'Fraunces',serif;
+    font-size:16px;
+    font-weight:500;
+    color:var(--ink);
+    margin:0;
+  }
+  .app-card .role{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:1px 0 0;
+  }
+  .badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    padding:3px 7px;
+    border-radius:5px;
+    white-space:nowrap;
+    font-weight:500;
+  }
+  .row2{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:9px;
+  }
+  .stagerail{
+    display:flex;
+    gap:3px;
+  }
+  .tick{width:14px;height:4px;border-radius:2px;background:var(--border);}
+  .tick.filled{background:var(--stage-color, var(--ink));}
+  .due{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+  }
+  .due.urgent{color:var(--rust);font-weight:500;}
+  .due.soon{color:var(--amber);font-weight:500;}
+
+  .navbar{
+    flex:none;
+    display:flex;
+    border-top:1px solid var(--border);
+    background:var(--card);
+  }
+  .navitem{
+    flex:1;
+    text-align:center;
+    padding:9px 0 12px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--ink-faint);
+  }
+  .navitem.active{color:var(--ink);font-weight:500;}
+  .navitem .dot{
+    width:5px;height:5px;border-radius:50%;
+    background:var(--ink-faint);
+    margin:0 auto 5px;
+  }
+  .navitem.active .dot{background:var(--ink);}
+
+  /* Today screen specifics */
+  .today-hero{
+    padding:2px 18px 12px;
+    flex:none;
+  }
+  .today-hero .count{
+    font-family:'Fraunces',serif;
+    font-size:38px;
+    font-weight:500;
+    color:var(--ink);
+    line-height:1;
+  }
+  .today-hero .lead{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:4px;
+  }
+
+  /* Detail screen */
+  .detail-hero{
+    padding:16px 18px 14px;
+    flex:none;
+    border-bottom:1px solid var(--border);
+  }
+  .back{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .detail-hero h2{
+    font-family:'Fraunces',serif;
+    font-size:24px;
+    font-weight:500;
+    margin:0 0 3px;
+    color:var(--ink);
+  }
+  .detail-hero .role{font-size:12.5px;color:var(--ink-soft);}
+  .detail-rail{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-top:14px;
+  }
+  .stage-node{
+    flex:1;
+    text-align:center;
+  }
+  .stage-node .bar{height:4px;border-radius:2px;background:var(--border);margin-bottom:6px;}
+  .stage-node.done .bar{background:var(--forest);}
+  .stage-node.now .bar{background:var(--ink);}
+  .stage-node .lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-faint);text-transform:uppercase;}
+  .stage-node.now .lbl{color:var(--ink);font-weight:500;}
+
+  .next-action{
+    margin:14px 18px 0;
+    background:var(--amber-bg);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .next-action .lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin:0 0 3px;}
+  .next-action .txt{font-size:13.5px;color:var(--ink);font-weight:500;}
+  .next-action .sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+
+  .timeline{padding:16px 18px 12px;}
+  .tl-item{
+    display:flex;
+    gap:10px;
+    padding-bottom:16px;
+    position:relative;
+  }
+  .tl-item::before{
+    content:'';
+    position:absolute;
+    left:5px;top:14px;bottom:0;
+    width:1px;
+    background:var(--border);
+  }
+  .tl-item:last-child::before{display:none;}
+  .tl-dot{
+    width:11px;height:11px;border-radius:50%;
+    background:var(--card);
+    border:2px solid var(--ink-faint);
+    flex:none;margin-top:2px;
+  }
+  .tl-dot.done{background:var(--forest);border-color:var(--forest);}
+  .tl-body .date{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-faint);}
+  .tl-body .what{font-size:13px;color:var(--ink);margin-top:1px;font-weight:500;}
+
+  .cta-row{
+    padding:0 18px 16px;
+    flex:none;
+  }
+  .btn-primary{
+    display:block;
+    text-align:center;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+    padding:13px;
+    border-radius:10px;
+  }
+
+  /* Update stage sheet */
+  .sheet-backdrop{
+    flex:1;
+    background:rgba(20,21,15,.45);
+    display:flex;
+    align-items:flex-end;
+  }
+  .sheet{
+    background:var(--card);
+    width:100%;
+    border-radius:20px 20px 0 0;
+    padding:10px 18px 22px;
+  }
+  .sheet .handle{
+    width:36px;height:4px;background:var(--border);border-radius:2px;
+    margin:0 auto 16px;
+  }
+  .sheet h3{
+    font-family:'Fraunces',serif;
+    font-size:19px;
+    font-weight:500;
+    margin:0 0 2px;
+    color:var(--ink);
+  }
+  .sheet .sub{font-size:12px;color:var(--ink-soft);margin-bottom:16px;}
+  .option{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:13px 14px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    margin-bottom:8px;
+    background:var(--paper);
+  }
+  .option.selected{
+    border-color:var(--ink);
+    background:var(--card);
+  }
+  .option .lft{display:flex;align-items:center;gap:10px;}
+  .option .radio{
+    width:16px;height:16px;border-radius:50%;
+    border:1.5px solid var(--ink-faint);
+    flex:none;
+  }
+  .option.selected .radio{
+    border-color:var(--ink);
+    background:radial-gradient(circle, var(--ink) 0 4px, transparent 4.5px);
+  }
+  .option .txt .t1{font-size:13.5px;color:var(--ink);font-weight:500;}
+  .option .txt .t2{font-size:11px;color:var(--ink-faint);}
+  .field{
+    margin-top:14px;
+  }
+  .field label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-faint);
+    display:block;
+    margin-bottom:6px;
+  }
+  .field .input{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--paper);
+  }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <p class="eyebrow">Ledger · job application tracker · core flow, 4 screens</p>
+  <h1>See where every application stands, at a glance</h1>
+  <p>Today (what needs attention) → All applications (everything in flight) → Application detail (the full story) → Update stage (the one action that keeps the tracker honest).</p>
+</div>
+
+<div class="board">
+
+  <!-- SCREEN 1: TODAY -->
+  <div class="screen-col">
+    <div class="screen-label">1 · <b>Today</b> — what needs attention</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="screen">
+        <div class="today-hero">
+          <div class="topbar" style="padding:0;">
+            <p class="kicker">Tue 14 Jul</p>
+          </div>
+          <div class="count">3</div>
+          <div class="lead">things need you today — 12 applications in flight</div>
+        </div>
+        <div class="scroll ruled">
+          <div class="section-label rust">Overdue</div>
+          <div class="app-card attn" style="--stage-color:var(--rust)">
+            <div class="row1">
+              <div><p class="company">Northwind Analytics</p><p class="role">Data Analyst · Online test</p></div>
+              <span class="badge" style="background:var(--rust-bg);color:var(--rust)">Test closed</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail">
+                <div class="tick filled" style="--stage-color:var(--rust)"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+              </div>
+              <span class="due urgent">missed 1 day ago</span>
+            </div>
+          </div>
+
+          <div class="section-label rust">Due today</div>
+          <div class="app-card attn" style="--stage-color:var(--slate)">
+            <div class="row1">
+              <div><p class="company">Solstice Labs</p><p class="role">SDE Intern · Interview</p></div>
+              <span class="badge" style="background:var(--slate-bg);color:var(--slate)">6:00 PM</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail">
+                <div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick"></div>
+              </div>
+              <span class="due urgent">in 3h 20m</span>
+            </div>
+          </div>
+
+          <div class="app-card attn" style="--stage-color:var(--amber)">
+            <div class="row1">
+              <div><p class="company">Kestrel Bank</p><p class="role">Business Analyst</p></div>
+              <span class="badge" style="background:var(--amber-bg);color:var(--amber)">No update, 9d</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail">
+                <div class="tick filled" style="--stage-color:var(--amber)"></div><div class="tick filled" style="--stage-color:var(--amber)"></div><div class="tick"></div><div class="tick"></div>
+              </div>
+              <span class="due soon">confirm still waiting?</span>
+            </div>
+          </div>
+
+          <div class="section-label amber">Coming up</div>
+          <div class="app-card" style="--stage-color:var(--slate)">
+            <div class="row1">
+              <div><p class="company">Meridian Systems</p><p class="role">Online test</p></div>
+              <span class="badge" style="background:var(--gray-bg);color:var(--ink-soft)">Fri</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail">
+                <div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick"></div><div class="tick"></div>
+              </div>
+              <span class="due">in 3 days</span>
+            </div>
+          </div>
+          <div class="app-card" style="--stage-color:var(--slate)">
+            <div class="row1">
+              <div><p class="company">Harbor Cloud</p><p class="role">Interview, round 2</p></div>
+              <span class="badge" style="background:var(--gray-bg);color:var(--ink-soft)">Mon</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail">
+                <div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick"></div>
+              </div>
+              <span class="due">in 6 days</span>
+            </div>
+          </div>
+        </div>
+        <div class="navbar">
+          <div class="navitem active"><div class="dot"></div>Today</div>
+          <div class="navitem"><div class="dot"></div>All</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: ALL APPLICATIONS -->
+  <div class="screen-col">
+    <div class="screen-label">2 · <b>All applications</b> — every one, at a glance</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="screen">
+        <div class="topbar">
+          <p class="kicker">12 in flight</p>
+          <h2>All applications</h2>
+        </div>
+        <div class="chiprow">
+          <div class="chip active">All · 12</div>
+          <div class="chip">Applied · 4</div>
+          <div class="chip">Test · 3</div>
+          <div class="chip">Interview · 3</div>
+          <div class="chip">Offer/Reject · 2</div>
+        </div>
+        <div class="scroll ruled">
+          <div class="app-card" style="--stage-color:var(--forest)">
+            <div class="row1">
+              <div><p class="company">Amberline Retail</p><p class="role">Analyst Program</p></div>
+              <span class="badge" style="background:var(--forest-bg);color:var(--forest)">Offer</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail"><div class="tick filled" style="--stage-color:var(--forest)"></div><div class="tick filled" style="--stage-color:var(--forest)"></div><div class="tick filled" style="--stage-color:var(--forest)"></div><div class="tick filled" style="--stage-color:var(--forest)"></div></div>
+              <span class="due">respond by 22 Jul</span>
+            </div>
+          </div>
+          <div class="app-card" style="--stage-color:var(--slate)">
+            <div class="row1">
+              <div><p class="company">Solstice Labs</p><p class="role">SDE Intern</p></div>
+              <span class="badge" style="background:var(--slate-bg);color:var(--slate)">Interview</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail"><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick"></div></div>
+              <span class="due urgent">today, 6 PM</span>
+            </div>
+          </div>
+          <div class="app-card" style="--stage-color:var(--slate)">
+            <div class="row1">
+              <div><p class="company">Harbor Cloud</p><p class="role">Product Analyst</p></div>
+              <span class="badge" style="background:var(--slate-bg);color:var(--slate)">Interview</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail"><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick"></div></div>
+              <span class="due">Mon, round 2</span>
+            </div>
+          </div>
+          <div class="app-card" style="--stage-color:var(--ink-faint)">
+            <div class="row1">
+              <div><p class="company">Northwind Analytics</p><p class="role">Data Analyst</p></div>
+              <span class="badge" style="background:var(--rust-bg);color:var(--rust)">Test missed</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail"><div class="tick filled" style="--stage-color:var(--rust)"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div></div>
+              <span class="due urgent">needs attention</span>
+            </div>
+          </div>
+          <div class="app-card" style="--stage-color:var(--slate)">
+            <div class="row1">
+              <div><p class="company">Meridian Systems</p><p class="role">Backend Intern</p></div>
+              <span class="badge" style="background:var(--slate-bg);color:var(--slate)">Test</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail"><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick filled" style="--stage-color:var(--slate)"></div><div class="tick"></div><div class="tick"></div></div>
+              <span class="due">Fri, 10 AM</span>
+            </div>
+          </div>
+          <div class="app-card" style="--stage-color:var(--ink-faint);opacity:.6">
+            <div class="row1">
+              <div><p class="company">Vantage Retailers</p><p class="role">Ops Trainee</p></div>
+              <span class="badge" style="background:var(--gray-bg);color:var(--ink-soft)">Rejected</span>
+            </div>
+            <div class="row2">
+              <div class="stagerail"><div class="tick filled" style="--stage-color:var(--ink-faint)"></div><div class="tick filled" style="--stage-color:var(--ink-faint)"></div><div class="tick"></div><div class="tick"></div></div>
+              <span class="due">closed 3 days ago</span>
+            </div>
+          </div>
+        </div>
+        <div class="navbar">
+          <div class="navitem"><div class="dot"></div>Today</div>
+          <div class="navitem active"><div class="dot"></div>All</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: DETAIL -->
+  <div class="screen-col">
+    <div class="screen-label">3 · <b>Application detail</b> — the full story</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="screen">
+        <div class="detail-hero">
+          <div class="back">← All applications</div>
+          <h2>Solstice Labs</h2>
+          <p class="role">Software Development Intern · applied 2 Jul</p>
+          <div class="detail-rail">
+            <div class="stage-node done"><div class="bar"></div><div class="lbl">Applied</div></div>
+            <div class="stage-node done"><div class="bar"></div><div class="lbl">Test</div></div>
+            <div class="stage-node now"><div class="bar"></div><div class="lbl">Interview</div></div>
+            <div class="stage-node"><div class="bar"></div><div class="lbl">Offer</div></div>
+          </div>
+        </div>
+        <div class="next-action">
+          <p class="lbl">Next up</p>
+          <p class="txt">Technical interview, round 1</p>
+          <p class="sub">Today · 6:00 – 7:00 PM · Google Meet link saved in notes</p>
+        </div>
+        <div class="scroll">
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-body"><div class="date">TODAY, 6:00 PM</div><div class="what">Interview — round 1</div></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot done"></div>
+              <div class="tl-body"><div class="date">9 Jul</div><div class="what">Passed online test</div></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot done"></div>
+              <div class="tl-body"><div class="date">4 Jul</div><div class="what">Online test assigned — 48h window</div></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot done"></div>
+              <div class="tl-body"><div class="date">2 Jul</div><div class="what">Applied via campus portal</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="cta-row">
+          <div class="btn-primary">Update stage</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: UPDATE STAGE SHEET -->
+  <div class="screen-col">
+    <div class="screen-label">4 · <b>Update stage</b> — the one action that matters</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="screen">
+        <div class="sheet-backdrop">
+          <div class="sheet">
+            <div class="handle"></div>
+            <h3>Move Solstice Labs forward</h3>
+            <p class="sub">Currently: Interview, round 1</p>
+
+            <div class="option selected">
+              <div class="lft"><div class="radio"></div><div class="txt"><div class="t1">Interview cleared</div><div class="t2">Move to next round or offer stage</div></div></div>
+              <i style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--forest)">→</i>
+            </div>
+            <div class="option">
+              <div class="lft"><div class="radio"></div><div class="txt"><div class="t1">Still waiting</div><div class="t2">No news yet — remind me in a few days</div></div></div>
+            </div>
+            <div class="option">
+              <div class="lft"><div class="radio"></div><div class="txt"><div class="t1">Not moving forward</div><div class="t2">Mark as rejected and archive</div></div></div>
+            </div>
+
+            <div class="field">
+              <label>Next step (optional)</label>
+              <div class="input" style="color:var(--ink-faint)">e.g. Round 2 — 18 Jul, 4 PM</div>
+            </div>
+            <div class="field">
+              <label>Note (optional)</label>
+              <div class="input" style="color:var(--ink-faint)">e.g. Panel of 3, asked about the campus project</div>
+            </div>
+            <div class="btn-primary" style="margin-top:18px;">Save update</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
